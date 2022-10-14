@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../../Embedded Bullshit"
+		},
+		{
+			"name": "Embedded 100",
+			"path": "../../../Documents/PlatformIO/Projects/Embedded 100"
+		},
+		{
+			"name": "Adr_Micro_test",
+			"path": "../../../Documents/PlatformIO/Projects/Adr_Micro_test"
+		},
+		{
+			"name": "Embedded 100",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
