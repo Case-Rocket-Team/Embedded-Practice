@@ -37,6 +37,7 @@ void manufacturer() {
 
 }
 
+
 bool busy(){
   bool busy = true; 
   while(busy){
@@ -44,17 +45,12 @@ bool busy(){
     SPI.transfer(0x05);
     byte resp = SPI.transfer(0);
     release();
-
-    Serial.println("Fuck");
-    Serial.println(resp, BIN);
     
-    busy = resp >> 0;
-    busy = false;
+    busy = resp & 0b00000001;
   }
 
   return false; 
 }
-
 
 
 void read(byte* read) {
@@ -77,6 +73,7 @@ void read(byte* read) {
   release();
 }
 
+
 void write_enable(){
   if (busy()) {
     Serial.println("Busy. Unable to enable write.");
@@ -90,6 +87,7 @@ void write_enable(){
   release();
 
 }
+
 
 void write(){
   if (busy()) {
@@ -116,17 +114,6 @@ void write(){
 }
 
 
-
-void read_test(){
-  byte r[4];
-  read(r);
-
-  for (int i=0; i<4; i++){
-    Serial.println(*(r+i), BIN);
-  }
-
-}
-
 void print_arr(byte A[]){
   // calculate size in bytes
   int arraySize = sizeof(A);
@@ -138,6 +125,16 @@ void print_arr(byte A[]){
   for (int i=0; i<length; i++){
     Serial.println(*(A+i), BIN);
   }
+}
+
+
+void read_test(){
+  byte r[4];
+  Serial.println("\nReading 0 0 0");
+  read(r);
+  
+  print_arr(r);
+
 }
 
 
