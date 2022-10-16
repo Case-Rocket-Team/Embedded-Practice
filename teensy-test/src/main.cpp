@@ -109,7 +109,7 @@ void read_test(){
   read(r);
 
   for (int i=0; i<4; i++){
-    Serial.println(*(r+i));
+    Serial.println(*(r+i), BIN);
   }
 
 }
@@ -151,7 +151,7 @@ void initialize(){
 void setup() {
   initialize();
 
-  read_and_write_test();
+  read_test();
 
 }
 
