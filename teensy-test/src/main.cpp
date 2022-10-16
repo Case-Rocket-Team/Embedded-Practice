@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <SPI.h>
+#include <time.h>
 
 #define FLASH_CS_PIN 18
 
@@ -40,8 +41,9 @@ void manufacturer() {
 
 bool busy(){
   bool busy = true; 
-  
+
   while(busy){
+    Serial.println("Busy");
     select();
     SPI.transfer(0x05);
     byte resp = SPI.transfer(0);
@@ -104,10 +106,19 @@ void erase(byte one, byte two, byte three){
 
   release();
 
+  Serial.println("Erase Beginning");
+  clock_t t;
+  t = clock();
   while (busy()){
     Serial.println("Running Through Erase");
-    delay(500);
+    
   }
+  t = clock() - t;
+  double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
+ 
+  Serial.println("erasing took ");
+  Serial.print(time_taken);
+  Serial.print(" seconds to execute \n");
 }
 
 void write(byte one, byte two, byte three){
