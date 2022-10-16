@@ -40,6 +40,7 @@ void manufacturer() {
 
 bool busy(){
   bool busy = true; 
+  
   while(busy){
     select();
     SPI.transfer(0x05);
@@ -90,7 +91,7 @@ void write_enable(){
 
 void erase(byte one, byte two, byte three){
   if (busy()) {
-    Serial.println("Busy.");
+    Serial.println("Busy. Erase Failed.");
     return;
   }
 
@@ -104,14 +105,14 @@ void erase(byte one, byte two, byte three){
   release();
 
   while (busy()){
-    Serial.println("Busy");
+    Serial.println("Running Through Erase");
     delay(500);
   }
 }
 
 void write(byte one, byte two, byte three){
   if (busy()) {
-    Serial.println("Busy.");
+    Serial.println("Busy. Write Failed.");
     return;
   }
 
@@ -130,13 +131,12 @@ void write(byte one, byte two, byte three){
   
   release();
 
-
 }
 
 
 void write_zero(){
   if (busy()) {
-    Serial.println("Busy.");
+    Serial.println("Busy. Write_Zero Failed.");
     return;
   }
 
@@ -203,6 +203,8 @@ void initialize(){
 
 void setup() {
   initialize();
+
+  manufacturer();
 
   read_and_write_test();
 
