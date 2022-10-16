@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <time.h>
 
 #define FLASH_CS_PIN 18
 
@@ -107,18 +106,20 @@ void erase(byte one, byte two, byte three){
   release();
 
   Serial.println("Erase Beginning");
-  clock_t t;
-  t = clock();
+  unsigned long start, finished, elapsed;
+
+  Serial.println("Start...");
+  start=millis();
   while (busy()){
     Serial.println("Running Through Erase");
-    
+
   }
-  t = clock() - t;
-  double time_taken = ((double)t)/CLOCKS_PER_SEC; // in seconds
- 
-  Serial.println("erasing took ");
-  Serial.print(time_taken);
-  Serial.print(" seconds to execute \n");
+  finished=millis();
+  Serial.println("Finished");
+  elapsed=finished-start;
+  Serial.print(elapsed);
+  Serial.println(" milliseconds elapsed");
+  Serial.println();  
 }
 
 void write(byte one, byte two, byte three){
