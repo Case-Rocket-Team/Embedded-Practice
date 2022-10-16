@@ -88,22 +88,40 @@ void write_enable(){
 
 }
 
-
-void write(){
+void erase(byte one, byte two, byte three){
   if (busy()) {
     Serial.println("Busy.");
     return;
   }
 
-  write_enable();
+  select();
+
+  SPI.transfer(0x20);
+  SPI.transfer(one);
+  SPI.transfer(two);
+  SPI.transfer(three);
+
+  release();
+
+  while (busy()){
+    Serial.println("Busy");
+    delay(500);
+  }
+}
+
+void write(byte one, byte two, byte three){
+  if (busy()) {
+    Serial.println("Busy.");
+    return;
+  }
 
   select();
 
   SPI.transfer(0x02);
 
-  SPI.transfer(0);
-  SPI.transfer(0);
-  SPI.transfer(0);
+  SPI.transfer(one);
+  SPI.transfer(two);
+  SPI.transfer(three);
 
   SPI.transfer(0);
   SPI.transfer(0);
@@ -111,6 +129,22 @@ void write(){
   SPI.transfer(0);
   
   release();
+
+
+}
+
+
+void write_zero(){
+  if (busy()) {
+    Serial.println("Busy.");
+    return;
+  }
+
+  write_enable();
+
+  erase(0, 0, 0);
+
+  write(0, 0, 0);
 }
 
 
@@ -146,7 +180,7 @@ void read_and_write_test(){
   print_arr(r);
 
   Serial.println("\nWriting to 0 0 0");
-  write();
+  write_zero();
 
   Serial.println("\nReading 0 0 0");
   byte rf[4];
