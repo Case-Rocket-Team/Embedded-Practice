@@ -17,7 +17,7 @@ void release(){
 }
 
 void manufacturer() {
-  digitalWrite(FLASH_CS_PIN, LOW);
+  select();
 
   SPI.transfer(0x9F);
 
@@ -27,7 +27,7 @@ void manufacturer() {
   byte two = SPI.transfer(0);
   byte three = SPI.transfer(0);
 
-  digitalWrite(FLASH_CS_PIN, HIGH);
+  release();
 
   Serial.println("Manufacturer:");
   Serial.println(one, HEX);
@@ -64,15 +64,29 @@ void read(byte* read) {
   release();
 }
 
+void write_enable(){
+  if (busy()) {
+    Serial.println("Busy. Unable to enable write.");
+    return;
+  }
+  
+  select();
+
+  SPI.transfer(0x06);
+
+  release();
+
+}
+
 void write(){
   if (busy()) {
     Serial.println("Busy.");
     return;
   }
 
-  select();
+  write_enable();
 
-  SPI.transfer(0x06);
+  select();
 
   SPI.transfer(0x02);
 
@@ -85,8 +99,6 @@ void write(){
   SPI.transfer(0);
   SPI.transfer(0);
   
-  SPI.transfer(0x04);
-
   release();
 }
 
