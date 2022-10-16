@@ -44,9 +44,14 @@ bool busy(){
     SPI.transfer(0x05);
     byte resp = SPI.transfer(0);
     release();
+
+    Serial.println("Fuck");
+    Serial.println(resp, BIN);
     
     busy = resp >> 0;
+    busy = false;
   }
+
   return false; 
 }
 
@@ -55,10 +60,11 @@ bool busy(){
 void read(byte* read) {
   if(busy()){
     Serial.println("Busy.");
-    release();
     return;
   }
-    
+
+  select();
+
   SPI.transfer(0x03);
   SPI.transfer(0);
   SPI.transfer(0);
