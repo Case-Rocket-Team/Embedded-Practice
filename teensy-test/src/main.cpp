@@ -38,12 +38,19 @@ void manufacturer() {
 }
 
 bool busy(){
-  select();
-  byte resp = SPI.transfer(0x05);
-  release();
-  
-  return resp >> 0;
+  bool busy = true; 
+  while(busy){
+    select();
+    SPI.transfer(0x05);
+    byte resp = SPI.transfer(0);
+    release();
+    
+    busy = resp >> 0;
+  }
+  return false; 
 }
+
+
 
 void read(byte* read) {
   if(busy()){
@@ -114,15 +121,26 @@ void read_test(){
 
 }
 
+void print_arr(byte A[]){
+  // calculate size in bytes
+  int arraySize = sizeof(A);
+  int intSize = sizeof(A[0]);
+
+  // length
+  int length = arraySize / intSize;
+
+  for (int i=0; i<length; i++){
+    Serial.println(*(A+i), BIN);
+  }
+}
+
 
 void read_and_write_test(){
   byte r[4];
   Serial.println("\nReading 0 0 0");
   read(r);
 
-  for (int i=0; i<4; i++){
-    Serial.println(*(r+i), BIN);
-  }
+  print_arr(r);
 
   Serial.println("\nWriting to 0 0 0");
   write();
@@ -131,9 +149,7 @@ void read_and_write_test(){
   byte rf[4];
   read(rf);
 
-  for (int i=0; i<4; i++){
-    Serial.println(*(rf+i), BIN);
-  }
+  print_arr(rf);
 
 }
 
@@ -151,7 +167,7 @@ void initialize(){
 void setup() {
   initialize();
 
-  read_test();
+  read_and_write_test();
 
 }
 
