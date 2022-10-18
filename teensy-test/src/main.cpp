@@ -37,6 +37,23 @@ void manufacturer() {
 
 }
 
+void get_registers(){
+  select();
+  SPI.transfer(0x05);
+  byte reg1 = SPI.transfer(0);
+  release();
+
+  Serial.println("\nRegister-1:");
+  Serial.println(reg1, BIN);
+
+  select();
+  SPI.transfer(0x35);
+  byte reg2 = SPI.transfer(0);
+  release();
+
+  Serial.println("\nRegister-2:");
+  Serial.println(reg2, BIN);
+}
 
 bool busy(){
   bool busy = true; 
@@ -98,7 +115,7 @@ void erase(byte one, byte two, byte three){
 
   select();
 
-  SPI.transfer(0x20);
+  SPI.transfer(0x52);
   SPI.transfer(one);
   SPI.transfer(two);
   SPI.transfer(three);
@@ -109,16 +126,17 @@ void erase(byte one, byte two, byte three){
   unsigned long start, finished, elapsed;
 
   Serial.println("Start...");
-  start=millis();
+  start=micros();
   while (busy()){
     Serial.println("Running Through Erase");
 
   }
-  finished=millis();
+  delay(500);
+  finished=micros();
   Serial.println("Finished");
   elapsed=finished-start;
   Serial.print(elapsed);
-  Serial.println(" milliseconds elapsed");
+  Serial.println(" microseconds elapsed");
   Serial.println();  
 }
 
@@ -153,6 +171,8 @@ void write_zero(){
   }
 
   write_enable();
+
+  get_registers();
 
   erase(0, 0, 0);
 
@@ -212,14 +232,55 @@ void initialize(){
   Serial.println("Initialized ");
 }
 
+void disable_write_protect(){
+  write_enable();
+
+  select();
+  SPI.transfer(0x01);
+  SPI.transfer(0b01111100);
+  release();
+
+}
+
+void write_protect_fix(){
+  get_registers();
+
+  disable_write_protect();
+
+  get_registers();
+}
+
+void reset(){
+  select();
+  SPI.transfer(0x66);
+  release();
+
+  select();
+  SPI.transfer(0x99);
+  release();
+}
+
+void disable_QPI(){
+  select();
+  SPI.transfer(0x38);
+  release();
+}
+
+
+
 
 void setup() {
   initialize();
 
   manufacturer();
 
-  read_and_write_test();
+  get_registers();
 
+  disable_QPI();
+
+  get_registers();
+
+  read_and_write_test();
 }
 
 void loop() {
