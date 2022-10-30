@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#define FLASH_CS_PIN 18
+#define FLASH_CS_PIN 10
 
 
 void select(){
@@ -59,7 +59,7 @@ bool busy(){
   bool busy = true; 
 
   while(busy){
-    Serial.println("Busy");
+    // Serial.println("Busy");
     select();
     SPI.transfer(0x05);
     byte resp = SPI.transfer(0);
@@ -113,6 +113,8 @@ void erase(byte one, byte two, byte three){
     return;
   }
 
+  write_enable();
+
   select();
 
   SPI.transfer(0x52);
@@ -146,6 +148,8 @@ void write(byte one, byte two, byte three){
     return;
   }
 
+  write_enable();
+
   select();
 
   SPI.transfer(0x02);
@@ -154,8 +158,7 @@ void write(byte one, byte two, byte three){
   SPI.transfer(two);
   SPI.transfer(three);
 
-  SPI.transfer(0);
-  SPI.transfer(0);
+  SPI.transfer(0b00010000);
   SPI.transfer(0);
   SPI.transfer(0);
   
@@ -171,8 +174,6 @@ void write_zero(){
   }
 
   write_enable();
-
-  get_registers();
 
   erase(0, 0, 0);
 
@@ -222,22 +223,36 @@ void read_and_write_test(){
 
 }
 
+
 void initialize(){
   pinMode(FLASH_CS_PIN, OUTPUT);
   digitalWrite(FLASH_CS_PIN, HIGH);
 
   SPI.begin();
   delay(500);
-  Serial.begin(115200); // bodrate
+  Serial.begin(9600); // bodrate
   Serial.println("Initialized ");
 }
+
 
 void disable_write_protect(){
   write_enable();
 
   select();
   SPI.transfer(0x01);
-  SPI.transfer(0b01111100);
+  SPI.transfer(0b11111110);
+  SPI.transfer(0b01000000);
+  release();
+
+}
+
+void enable_write_protect(){
+  write_enable();
+
+  select();
+  SPI.transfer(0x01);
+  SPI.transfer(0b11111110);
+  SPI.transfer(0b00000000);
   release();
 
 }
@@ -250,6 +265,8 @@ void write_protect_fix(){
   get_registers();
 }
 
+
+
 void reset(){
   select();
   SPI.transfer(0x66);
@@ -260,6 +277,7 @@ void reset(){
   release();
 }
 
+
 void disable_QPI(){
   select();
   SPI.transfer(0x38);
@@ -267,21 +285,29 @@ void disable_QPI(){
 }
 
 
+void waiting(int time){
+  for (int i=0; i<time; i++){
+    Serial.print("Running in ");
+    Serial.println(time - i);
+    delay(1000);
+    
+  }
+}
 
 
 void setup() {
   initialize();
 
+  waiting(5);
+
   manufacturer();
 
   get_registers();
 
-  disable_QPI();
-
-  get_registers();
-
   read_and_write_test();
+
 }
+
 
 void loop() {
   // put your main code here, to run repeatedly:
