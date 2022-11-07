@@ -1,14 +1,9 @@
-/* Kyler Rosen
-Last Modified: 11/04/22
-Implements Flash Chip Editing for W25Q64FV */
-
-#include <Arduino.h>
-#include <SPI.h>
+#include "W25Q64FV.hpp"
 #include "queue.hpp"
 
 #define FLASH_CS_PIN 10
 
-void select(){
+void F25Q64FV::select(){
   SPI.beginTransaction(SPISettings(400000, MSBFIRST, SPI_MODE0));
 
   digitalWrite(FLASH_CS_PIN, LOW);
@@ -16,13 +11,13 @@ void select(){
 }
 
 
-void release(){
+void F25Q64FV::release(){
   SPI.endTransaction();
   digitalWrite(FLASH_CS_PIN, HIGH);
 }
 
 
-void manufacturer() {
+void F25Q64FV::manufacturer() {
   select();
 
   SPI.transfer(0x9F);
@@ -44,7 +39,7 @@ void manufacturer() {
 }
 
 
-void get_registers(){
+void F25Q64FV::get_registers(){
   select();
   SPI.transfer(0x05);
   byte reg1 = SPI.transfer(0);
@@ -63,7 +58,7 @@ void get_registers(){
 }
 
 
-bool busy(){
+bool F25Q64FV::busy(){
   bool busy = true; 
 
   while(busy){
@@ -80,7 +75,7 @@ bool busy(){
 }
 
 
-void read(byte* read) {
+void F25Q64FV::read(byte* read) {
   if(busy()){
     Serial.println("Busy.");
     return;
@@ -101,7 +96,7 @@ void read(byte* read) {
 }
 
 
-void write_enable(){
+void F25Q64FV::write_enable(){
   if (busy()) {
     Serial.println("Busy. Unable to enable write.");
     return;
@@ -116,7 +111,7 @@ void write_enable(){
 }
 
 
-void erase(byte one, byte two, byte three){
+void F25Q64FV::erase(byte one, byte two, byte three){
   if (busy()) {
     Serial.println("Busy. Erase Failed.");
     return;
@@ -152,7 +147,7 @@ void erase(byte one, byte two, byte three){
 }
 
 
-void write(byte one, byte two, byte three){
+void F25Q64FV::write(byte one, byte two, byte three){
   if (busy()) {
     Serial.println("Busy. Write Failed.");
     return;
@@ -177,7 +172,7 @@ void write(byte one, byte two, byte three){
 }
 
 
-void write_zero(){
+void F25Q64FV::write_zero(){
   if (busy()) {
     Serial.println("Busy. Write_Zero Failed.");
     return;
@@ -191,7 +186,7 @@ void write_zero(){
 }
 
 
-void print_arr(byte A[]){
+void F25Q64FV::print_arr(byte A[]){
   // calculate size in bytes
   int arraySize = sizeof(A);
   int intSize = sizeof(A[0]);
@@ -205,7 +200,7 @@ void print_arr(byte A[]){
 }
 
 
-void read_test(){
+void F25Q64FV::read_test(){
   byte r[4];
   Serial.println("\nReading 0 0 0");
   read(r);
@@ -215,7 +210,7 @@ void read_test(){
 }
 
 
-void read_and_write_test(){
+void F25Q64FV::read_and_write_test(){
   byte r[4];
   Serial.println("\nReading 0 0 0");
   read(r);
@@ -234,7 +229,7 @@ void read_and_write_test(){
 }
 
 
-void initialize(){
+void F25Q64FV::initialize(){
   pinMode(FLASH_CS_PIN, OUTPUT);
   digitalWrite(FLASH_CS_PIN, HIGH);
 
@@ -245,7 +240,7 @@ void initialize(){
 }
 
 
-void disable_write_protect(){
+void F25Q64FV::disable_write_protect(){
   write_enable();
 
   select();
@@ -257,7 +252,7 @@ void disable_write_protect(){
 }
 
 
-void enable_write_protect(){
+void F25Q64FV::enable_write_protect(){
   write_enable();
 
   select();
@@ -268,7 +263,7 @@ void enable_write_protect(){
 
 }
 
-void write_protect_fix(){
+void F25Q64FV::write_protect_fix(){
   get_registers();
 
   disable_write_protect();
@@ -277,7 +272,7 @@ void write_protect_fix(){
 }
 
 
-void reset(){
+void F25Q64FV::reset(){
   select();
   SPI.transfer(0x66);
   release();
@@ -288,14 +283,14 @@ void reset(){
 }
 
 
-void disable_QPI(){
+void F25Q64FV::disable_QPI(){
   select();
   SPI.transfer(0x38);
   release();
 }
 
 
-void waiting(int time){
+void F25Q64FV::waiting(int time){
   for (int i=0; i<time; i++){
     Serial.print("Running in ");
     Serial.println(time - i);
@@ -304,7 +299,7 @@ void waiting(int time){
   }
 }
 
-void chip_test() {
+void F25Q64FV::chip_test() {
   initialize();
 
   waiting(5);
@@ -315,16 +310,3 @@ void chip_test() {
 
   read_and_write_test();
 }
-
-
-void setup() {
-  initialize();
-  Serial.println("here");
-  queueTest();
-}
-
-
-void loop() {
-  // put your main code here, to run repeatedly:
-}
-
